@@ -8,9 +8,9 @@ from modules.AMETrainingArguments import AMETrainingArguments
 from modules.AMEMetric import AMEMetric, RemoveBadSaveCallback
 from huggingface_hub import HfFileSystem
 
-# torch TF32 Setting
-import torch
-torch.backends.cuda.matmul.allow_tf32 = True
+# # torch TF32 Setting
+# import torch
+# torch.backends.cuda.matmul.allow_tf32 = True
 
 def parse():
     parser = argparse.ArgumentParser()
@@ -293,7 +293,8 @@ def prepare_trainer_input(args):
         tau = args.tau,
         w_func = args.w_func,
         # options for mixed precision, amp
-        tf32 = True,
+        # tf32 = True,
+        #Cannot use bf16 
         fp16 = True,
         # save or eval parameters
         save_strategy = "steps",
