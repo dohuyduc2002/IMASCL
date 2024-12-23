@@ -45,7 +45,7 @@ class AMETrainer(Trainer):
             # Default AdamW optimizer from Hugging Face
             optimizer = AdamW(
                 model.parameters(),
-                lr=args.lr
+                lr=args.learning_rate
             )
 
             # Default scheduler: linear with warmup
