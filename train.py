@@ -185,6 +185,11 @@ def parse():
         type = int,
         default = 0
     )
+    parser.add_argument(
+        "num_proc",
+        type = int,
+        default = 4
+    )
     args = parser.parse_args()
     args.world_size = torch.cuda.device_count()
     args.lang2priority = {}
@@ -396,8 +401,8 @@ def prepare_trainer_input(args):
                 "attention_mask_2": sentence2_encoding["attention_mask"]
             }
 
-    dataset_sentence = dataset_sentence.map(tokenize_function, batched=True, num_proc = 32)
-    dataset_eval = dataset_eval.map(tokenize_function, batched=True, num_proc = 32)
+    dataset_sentence = dataset_sentence.map(tokenize_function, batched=True, num_proc = args.num_proc)
+    dataset_eval = dataset_eval.map(tokenize_function, batched=True, num_proc = args.num_proc)
     return model, training_args, dataset_sentence, dataset_eval, collator
 
 def main():
