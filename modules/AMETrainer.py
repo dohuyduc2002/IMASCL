@@ -52,7 +52,7 @@ class AMETrainer(Trainer):
             num_training_steps = (
                 args.max_steps
                 if args.max_steps > 0
-                else (len(train_dataset) // args.per_device_train_batch_size) * args.epoch
+                else (len(train_dataset) // args.per_device_train_batch_size) * args.num_train_epochs
             )
             lr_scheduler = get_scheduler(
                 name='cosine',
