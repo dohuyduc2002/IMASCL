@@ -185,11 +185,6 @@ def parse():
         type = int,
         default = 0
     )
-    parser.add_argument(
-        "num_proc",
-        type = int,
-        default = 4
-    )
     args = parser.parse_args()
     args.world_size = torch.cuda.device_count()
     args.lang2priority = {}
