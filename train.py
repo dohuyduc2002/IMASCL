@@ -230,6 +230,7 @@ def download_process_dataset(args, dataset_name, split):
     end = len(dataset)
     if split == "train":
         mod = len(dataset) % (args.per_device_batch_size * args.world_size)
+        print(len(dataset), args.per_device_batch_size, args.world_size)
         if mod:
             for _ in range(args.per_device_batch_size * args.world_size - mod):
                 dataset = dataset.add_item({"sentence1": "", "sentence2": "", "lang1": "", "lang2": "", "guid": -1})
