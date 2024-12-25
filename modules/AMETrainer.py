@@ -8,7 +8,7 @@ import datasets
 from .AMESampler import LengthInBatchSampler, LengthInBatchwithIdxDictSampler
 
 from transformers import AutoModel, AutoConfig
-from transformers import Trainer
+from transformers import Trainer,AdamW, get_scheduler
 from transformers.utils import is_datasets_available
 from transformers import logging
 logger = logging.get_logger(__name__)
@@ -23,43 +23,75 @@ def has_length(dataset):
         # TypeError: len() of unsized object
         return False
 
+from transformers import Trainer, AdamW, get_scheduler
+
 class AMETrainer(Trainer):
     def __init__(
         self,
-        model = None,
-        args = None,
-        data_collator = None,
-        train_dataset = None,
-        eval_dataset = None,
-        tokenizer = None,
-        model_init = None,
-        compute_metrics = None,
-        callbacks = None,
-        optimizers = (None, None),
-        preprocess_logits_for_metrics = None,
+        model=None,
+        args=None,
+        data_collator=None,
+        train_dataset=None,
+        eval_dataset=None,
+        tokenizer=None,
+        model_init=None,
+        compute_metrics=None,
+        callbacks=None,
+        optimizers=(None, None),
+        preprocess_logits_for_metrics=None,
     ):
+        # If optimizers are None, initialize them using HF utilities
+        if optimizers == (None, None):
+            # Default AdamW optimizer from Hugging Face
+            optimizer = AdamW(
+                model.parameters(),
+                lr=args.learning_rate
+            )
+
+            # Default scheduler: linear with warmup
+            num_training_steps = (
+                args.max_steps
+                if args.max_steps > 0
+                else (len(train_dataset) // args.per_device_train_batch_size) * args.num_train_epochs
+            )
+            lr_scheduler = get_scheduler(
+                name='cosine',
+                optimizer=optimizer,
+                num_warmup_steps=args.warmup_steps,
+                num_training_steps=num_training_steps,
+            )
+
+            optimizers = (optimizer, lr_scheduler)
+
         super().__init__(
-            model, 
-            args, 
-            data_collator, 
-            train_dataset, 
-            eval_dataset, 
-            tokenizer, 
-            model_init, 
-            compute_metrics, 
-            callbacks, 
-            optimizers, 
-            preprocess_logits_for_metrics
+            model,
+            args,
+            data_collator,
+            train_dataset,
+            eval_dataset,
+            tokenizer,
+            model_init,
+            compute_metrics,
+            callbacks,
+            optimizers,
+            preprocess_logits_for_metrics,
         )
-        
+
+        # Embedding model setup
         if self.args.embed_model_dir == "self":
             self.embed_model = model
-        elif self.args.embed_model_dir == None:
+        elif self.args.embed_model_dir is None:
             self.embed_model = None
         else:
-            embed_config = AutoConfig.from_pretrained(self.args.embed_model_dir, output_hidden_states=True, output_past=False)
-            self.embed_model = AutoModel.from_pretrained(self.args.embed_model_dir, config=embed_config, add_pooling_layer = False).to(self.args.device)
+            embed_config = AutoConfig.from_pretrained(
+                self.args.embed_model_dir, output_hidden_states=True, output_past=False
+            )
+            self.embed_model = AutoModel.from_pretrained(
+                self.args.embed_model_dir, config=embed_config, add_pooling_layer=False
+            ).to(self.args.device)
             self.embed_model.eval()
+
+
 
     
     def _get_train_sampler(self):
