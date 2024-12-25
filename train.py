@@ -303,7 +303,7 @@ def prepare_trainer_input(args):
         logging_strategy = "steps",
         save_steps = args.eval_steps,
         eval_steps = args.eval_steps,
-        logging_steps = args.eval_steps,
+        logging_steps = 20,
         lr_scheduler_type = "cosine",
 
         # this is metric"s" for save model!
