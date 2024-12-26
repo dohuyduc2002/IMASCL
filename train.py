@@ -255,8 +255,8 @@ def prepare_trainer_input(args):
     dataset_sentence, dataset_sentence_idx_dict = download_process_dataset(args, args.dataset_sentence, "train")
     dataset_eval = download_process_dataset(args, args.dataset_eval, "valid")
 
-    config = AutoConfig.from_pretrained(args.model, output_hidden_states=False, output_past=False)
-    model = AutoModel.from_pretrained(args.model, config=config, add_pooling_layer = False)
+    config = AutoConfig.from_pretrained(args.model, output_hidden_states=False, output_past=False,trust_remote_code =True)
+    model = AutoModel.from_pretrained(args.model, config=config, add_pooling_layer = False,trust_remote_code =True)
 
     runname = args.run_name
     
@@ -316,12 +316,12 @@ def prepare_trainer_input(args):
     )
     collator = AMEDataCollator()
 
-    tokenizer = AutoTokenizer.from_pretrained(args.model)
+    tokenizer = AutoTokenizer.from_pretrained(args.model,trust_remote_code =True)
     if args.embed_model:
         if args.embed_model == "self":
             tokenizer_embed = tokenizer
         else:
-            tokenizer_embed = AutoTokenizer.from_pretrained(args.embed_model)
+            tokenizer_embed = AutoTokenizer.from_pretrained(args.embed_model,trust_remote_code =True)
     
     def tokenize_function(examples):
         sentence1_encoding = tokenizer(examples["sentence1"], padding="max_length", truncation=True, max_length = 512)
