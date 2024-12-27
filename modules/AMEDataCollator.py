@@ -15,7 +15,7 @@ def torch_AME_data_collator(features):
     for k in ("input_ids_1", "input_ids_2", "attention_mask_1", "attention_mask_2", "guid"):
         assert k in keys
 
-    v = first["input_ids_1"]
+    v = first["input_ids_1"] #tokenized lang1
     if v is not None and not isinstance(v, str):
         if isinstance(v, torch.Tensor):
             batch_main["input_ids"] = torch.stack([f["input_ids_1"] for f in features])
@@ -24,7 +24,7 @@ def torch_AME_data_collator(features):
         else:
             batch_main["input_ids"] = torch.tensor([f["input_ids_1"] for f in features])
     
-    v = first["attention_mask_1"]
+    v = first["attention_mask_1"] #attn mask 4 lang1
     if v is not None and not isinstance(v, str):
         if isinstance(v, torch.Tensor):
             batch_main["attention_mask"] = torch.stack([f["attention_mask_1"] for f in features])
@@ -33,7 +33,7 @@ def torch_AME_data_collator(features):
         else:
             batch_main["attention_mask"] = torch.tensor([f["attention_mask_1"] for f in features])
     
-    v = first["input_ids_2"]
+    v = first["input_ids_2"] #tokenized lang2
     if v is not None and not isinstance(v, str):
         if isinstance(v, torch.Tensor):
             batch_main["input_ids"] = torch.cat((batch_main["input_ids"], torch.stack([f["input_ids_2"] for f in features])), dim = 0)
@@ -42,7 +42,7 @@ def torch_AME_data_collator(features):
         else:
             batch_main["input_ids"] = torch.cat((batch_main["input_ids"], torch.tensor([f["input_ids_2"] for f in features])), dim = 0)
     
-    v = first["attention_mask_2"]
+    v = first["attention_mask_2"] #attn mask 4 lang2
     if v is not None and not isinstance(v, str):
         if isinstance(v, torch.Tensor):
             batch_main["attention_mask"] = torch.cat((batch_main["attention_mask"], torch.stack([f["attention_mask_2"] for f in features])), dim = 0)
@@ -51,7 +51,7 @@ def torch_AME_data_collator(features):
         else:
             batch_main["attention_mask"] = torch.cat((batch_main["attention_mask"], torch.tensor([f["attention_mask_2"] for f in features])), dim = 0)
 
-    if "embed_input_ids_1" in first:
+    if "embed_input_ids_1" in first: #Using teacher model as embedding model, this using mE5 as embedding model for src lang
         batch_1 = {}
         v = first["embed_input_ids_1"]
         if isinstance(v, torch.Tensor):
@@ -70,7 +70,7 @@ def torch_AME_data_collator(features):
             batch_1["attention_mask"] = torch.tensor([f["embed_attention_mask_1"] for f in features])
         batch["batch_1"] = batch_1
     
-    if "embed_input_ids_2" in first:
+    if "embed_input_ids_2" in first:#Using teacher model as embedding model, this using mE5 as embedding model for tgt lang
         batch_2 = {}
         v = first["embed_input_ids_2"]
         if isinstance(v, torch.Tensor):
@@ -92,7 +92,7 @@ def torch_AME_data_collator(features):
 
     return batch
 
-class AMEDataCollator(DefaultDataCollator):
+class AMEDataCollator(DefaultDataCollator): 
     return_tensors: str = "pt"
 
     def __call__(self, features, return_tensors = None):
@@ -100,3 +100,6 @@ class AMEDataCollator(DefaultDataCollator):
         # if return_tensors is None:
         #     return_tensors = self.return_tensors
         return torch_AME_data_collator(features)
+#simple collator 4 translation ds, using hf collator to change class to pt
+
+

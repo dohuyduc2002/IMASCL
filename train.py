@@ -331,7 +331,7 @@ def prepare_trainer_input(args):
             if "e5" in args.embed_model:
                 examples["sentence1"] = ["query: " + text for text in examples["sentence1"]]
                 examples["sentence2"] = ["query: " + text for text in examples["sentence2"]]
-            if args.embed_direction == "both":
+            if args.embed_direction == "both": #decoder padd 
                 embed_sentence1_encoding = tokenizer_embed(examples["sentence1"], padding="max_length", truncation=True, max_length = 512)
                 embed_sentence2_encoding = tokenizer_embed(examples["sentence2"], padding="max_length", truncation=True, max_length = 512)
                 return {

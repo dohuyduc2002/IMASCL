@@ -9,9 +9,12 @@ def AMEMetric(pred):
         embeds = torch.tensor(output)
         embeds_1 = embeds[:, 0, :]
         embeds_2 = embeds[:, 1, :]
+        #retrieve embedding vector, from embeded maybe (batch, embed_dim, sequence)
         sim_matrix = torch.cdist(embeds_1, embeds_2)
         _, maxidx_1_to_2 = torch.min(sim_matrix, dim=1)
         _, maxidx_2_to_1 = torch.min(sim_matrix, dim=0)
+        #calculate sim mat for both vertical and horizontal, the sim mat is transposed to perfrom surjective mapping 
+        #using surjective mapping which is both src have many translate version in tgt lang 
         mat_size = sim_matrix.size(0)
         tatoeba_acc_1_to_2 = torch.sum(maxidx_1_to_2 == torch.arange(mat_size)) / mat_size
         tatoeba_acc_2_to_1 = torch.sum(maxidx_2_to_1 == torch.arange(mat_size)) / mat_size
@@ -24,7 +27,7 @@ def AMEMetric(pred):
 
 class RemoveBadSaveCallback(TrainerCallback):
     def on_save(self, args, state, control, **kwargs):
-        
+        #logging convention 
         best_model_steps = {}
         best_model_metric = {}
         metric_for_save_model_langs = []

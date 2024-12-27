@@ -5,6 +5,7 @@ from transformers import logging
 logger = logging.get_logger(__name__)
 
 def get_length_in_batch_grouped_indices(lengths, one_batch_size, generator=None):
+    # shuffles the indices so that the length of the sentences is not correlated with the index
     idxs = torch.randperm(len(lengths), generator=generator).tolist()
 
     ret = []
